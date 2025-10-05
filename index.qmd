@@ -4,7 +4,7 @@ author: "Autumn S. Wilcox"
 advisor: "Xingang (Ian) Fang, Ph.D."
 course: "IDC 6145 – Big Data Applications"
 institution: "University of West Florida"
-date: "`r format(Sys.Date(), '%B %d, %Y')`"
+date: "October 10, 2025"
 format:
   html:
     toc: true
