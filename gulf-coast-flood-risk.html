@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.24">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Autumn S. Wilcox">
+
+<title>Real-Time Prediction of Hurricane and Tidal Flood Risk in the Gulf Coast Using Big Data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="gulf-coast-flood-risk_files/libs/clipboard/clipboard.min.js"></script>
+<script src="gulf-coast-flood-risk_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="gulf-coast-flood-risk_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="gulf-coast-flood-risk_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="gulf-coast-flood-risk_files/libs/quarto-html/popper.min.js"></script>
+<script src="gulf-coast-flood-risk_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="gulf-coast-flood-risk_files/libs/quarto-html/anchor.min.js"></script>
+<link href="gulf-coast-flood-risk_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="gulf-coast-flood-risk_files/libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="gulf-coast-flood-risk_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="gulf-coast-flood-risk_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="gulf-coast-flood-risk_files/libs/bootstrap/bootstrap-a74871fe4945b66d259aafc266475145.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a></li>
+  <li><a href="#background-review" id="toc-background-review" class="nav-link" data-scroll-target="#background-review"><span class="header-section-number">2</span> Background Review</a>
+  <ul class="collapse">
+  <li><a href="#prior-work-in-flood-prediction" id="toc-prior-work-in-flood-prediction" class="nav-link" data-scroll-target="#prior-work-in-flood-prediction"><span class="header-section-number">2.1</span> Prior Work in Flood Prediction</a></li>
+  <li><a href="#big-data-in-climate-and-disaster-analytics" id="toc-big-data-in-climate-and-disaster-analytics" class="nav-link" data-scroll-target="#big-data-in-climate-and-disaster-analytics"><span class="header-section-number">2.2</span> Big Data in Climate and Disaster Analytics</a></li>
+  <li><a href="#identified-gaps" id="toc-identified-gaps" class="nav-link" data-scroll-target="#identified-gaps"><span class="header-section-number">2.3</span> Identified Gaps</a></li>
+  </ul></li>
+  <li><a href="#method" id="toc-method" class="nav-link" data-scroll-target="#method"><span class="header-section-number">3</span> Method</a>
+  <ul class="collapse">
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link" data-scroll-target="#data-sources"><span class="header-section-number">3.1</span> Data Sources</a></li>
+  <li><a href="#data-storage-and-processing" id="toc-data-storage-and-processing" class="nav-link" data-scroll-target="#data-storage-and-processing"><span class="header-section-number">3.2</span> Data Storage and Processing</a></li>
+  <li><a href="#predictive-modeling" id="toc-predictive-modeling" class="nav-link" data-scroll-target="#predictive-modeling"><span class="header-section-number">3.3</span> Predictive Modeling</a></li>
+  <li><a href="#visualization-and-decision-support" id="toc-visualization-and-decision-support" class="nav-link" data-scroll-target="#visualization-and-decision-support"><span class="header-section-number">3.4</span> Visualization and Decision Support</a></li>
+  <li><a href="#scalability-and-performance-considerations" id="toc-scalability-and-performance-considerations" class="nav-link" data-scroll-target="#scalability-and-performance-considerations"><span class="header-section-number">3.5</span> Scalability and Performance Considerations</a></li>
+  </ul></li>
+  <li><a href="#expected-results" id="toc-expected-results" class="nav-link" data-scroll-target="#expected-results"><span class="header-section-number">4</span> Expected Results</a></li>
+  <li><a href="#limitations-and-future-work" id="toc-limitations-and-future-work" class="nav-link" data-scroll-target="#limitations-and-future-work"><span class="header-section-number">5</span> Limitations and Future Work</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="gulf-coast-flood-risk.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Real-Time Prediction of Hurricane and Tidal Flood Risk in the Gulf Coast Using Big Data</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Autumn S. Wilcox </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">Invalid Date</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="abstract" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="abstract">Abstract</h2>
+<p>The Gulf Coast of the United States experiences frequent hurricanes and tidal flooding, resulting in severe damage to infrastructure, ecosystems, and communities. Existing flood prediction systems often rely on delayed or static data sources, limiting their effectiveness for real-time decision-making. This project proposes a scalable big data framework that integrates live environmental data from the National Oceanic and Atmospheric Administration (NOAA), the U.S. Geological Survey (USGS), and NASA to support real-time flood and storm surge prediction. The framework combines distributed processing technologies such as Apache Kafka and Apache Spark Streaming with machine learning models, including Gradient Boosted Trees, Long Short-Term Memory (LSTM) networks, and Convolutional Neural Networks (CNNs). These tools will be used to model complex spatial and temporal patterns in environmental data, producing near real-time risk assessments and visualizations. The proposed system aims to enhance early warning capabilities, improve emergency management response, and contribute to the broader understanding of how big data analytics can support climate resilience across the Gulf Coast region.</p>
+</section>
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<p>The U.S. Gulf Coast faces recurring hurricane and tidal flood events that cause severe economic, environmental, and social disruption <span class="citation" data-cites="noaa2023 fema2022">(<a href="#ref-fema2022" role="doc-biblioref">Federal Emergency Management Agency, 2022</a>; <a href="#ref-noaa2023" role="doc-biblioref">National Oceanic and Atmospheric Administration, 2023</a>)</span>. The increasing frequency and intensity of these storms, driven by climate change and coastal development, highlight the urgent need for accurate and timely flood prediction systems <span class="citation" data-cites="nca2023 ipcc2021">(<a href="#ref-ipcc2021" role="doc-biblioref">Intergovernmental Panel on Climate Change, 2021</a>; <a href="#ref-nca2023" role="doc-biblioref">U.S. Global Change Research Program, 2023</a>)</span>. However, many existing forecasting models depend on static or delayed data sources and lack the ability to integrate diverse, real-time information streams. This limitation reduces their usefulness for emergency response, evacuation planning, and infrastructure protection <span class="citation" data-cites="usgs2022">(<a href="#ref-usgs2022" role="doc-biblioref">U.S. Geological Survey, 2022</a>)</span>.</p>
+<p>This project proposes a real-time big data framework for predicting hurricane and tidal flood risk in the Gulf Coast region. The system will integrate live environmental data from sources such as the National Oceanic and Atmospheric Administration (NOAA), U.S. Geological Survey (USGS) tide gauges, and satellite imagery to generate continuously updated risk forecasts. To handle the scale and speed of these data, the framework will utilize distributed streaming technologies such as Apache Kafka for ingesting real-time data and Apache Spark Streaming for large-scale analytics, which will be described in greater detail in the Methods section.</p>
+<p>The primary objective of this research is to design a framework capable of identifying flood-prone zones and forecasting storm surge severity in near real time. By leveraging big data analytics, the project aims to enhance early warning systems, improve situational awareness, and ultimately reduce disaster impacts on Gulf Coast communities.</p>
+</section>
+<section id="background-review" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="background-review"><span class="header-section-number">2</span> Background Review</h2>
+<section id="prior-work-in-flood-prediction" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="prior-work-in-flood-prediction"><span class="header-section-number">2.1</span> Prior Work in Flood Prediction</h3>
+<p>Traditional flood forecasting models have relied primarily on physics-based hydrologic and hydrodynamic simulations. Systems such as the Sea, Lake, and Overland Surges from Hurricanes (SLOSH) model and the Advanced Circulation (ADCIRC) model are widely used to estimate storm surge and coastal inundation levels <span class="citation" data-cites="jelesnianski1992 luettich1992">(<a href="#ref-jelesnianski1992" role="doc-biblioref">Jelesnianski et al., 1992</a>; <a href="#ref-luettich1992" role="doc-biblioref">Luettich et al., 1992</a>)</span>. While these models can accurately reproduce storm surge under ideal conditions, they require significant computational resources and are often limited by the availability of real-time input data <span class="citation" data-cites="resio2007">(<a href="#ref-resio2007" role="doc-biblioref">Resio &amp; Westerink, 2007</a>)</span>. This restricts their ability to update forecasts dynamically as new observations become available.</p>
+<p>In recent years, machine learning and data-driven methods have been introduced to improve flood forecasting. Techniques such as Random Forests, Gradient Boosting, and deep learning architectures like Long Short-Term Memory (LSTM) and Convolutional Neural Networks (CNN) have been used to model nonlinear relationships between rainfall, tide, and water-level data <span class="citation" data-cites="mosavi2018 kratzert2019">(<a href="#ref-kratzert2019" role="doc-biblioref">Kratzert et al., 2019</a>; <a href="#ref-mosavi2018" role="doc-biblioref">Mosavi et al., 2018</a>)</span>. These models can capture complex spatial and temporal dependencies, enabling faster and sometimes more accurate predictions than traditional approaches. However, many of these studies operate on historical datasets rather than live data streams, and few address the computational scaling required for real-time applications <span class="citation" data-cites="xu2021">(<a href="#ref-xu2021" role="doc-biblioref">Xu et al., 2021</a>)</span>.</p>
+<p>While progress has been made toward predictive accuracy, the real challenge lies in combining <strong>real-time data ingestion</strong> with scalable, distributed processing. A true big data approach must integrate diverse data sources—such as weather radar, satellite imagery, and IoT-based sensors—into continuous analytic pipelines capable of updating predictions on demand. This gap between high-resolution forecasting and real-time operational capability motivates the framework proposed in this study.</p>
+</section>
+<section id="big-data-in-climate-and-disaster-analytics" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="big-data-in-climate-and-disaster-analytics"><span class="header-section-number">2.2</span> Big Data in Climate and Disaster Analytics</h3>
+<p>The increasing availability of environmental and sensor data has made big data analytics an essential tool for understanding and predicting natural hazards. With the expansion of satellite constellations, Internet of Things (IoT) networks, and open government data initiatives, researchers now have access to vast, high-velocity datasets that capture weather patterns, ocean conditions, and hydrological responses in near real time <span class="citation" data-cites="jin2015 mergili2019">(<a href="#ref-jin2015" role="doc-biblioref">Jin et al., 2015</a>; <a href="#ref-mergili2019" role="doc-biblioref">Mergili et al., 2019</a>)</span>. Big data technologies allow for the integration and analysis of these heterogeneous data streams, providing opportunities for earlier warnings and more accurate impact assessments.</p>
+<p>Distributed computing platforms such as Apache Hadoop and Apache Spark have become the backbone of large-scale environmental analytics <span class="citation" data-cites="hashem2015">(<a href="#ref-hashem2015" role="doc-biblioref">Hashem et al., 2015</a>)</span>. These frameworks enable parallel data processing across clusters of computers, making it feasible to analyze terabytes of streaming or historical data in seconds. For example, Spark Streaming has been applied to real-time weather monitoring systems to process continuous radar feeds, while cloud-based analytics pipelines have been developed to combine satellite imagery with ground sensors for flood detection <span class="citation" data-cites="shen2020 wang2021">(<a href="#ref-shen2020" role="doc-biblioref">Shen et al., 2020</a>; <a href="#ref-wang2021" role="doc-biblioref">Wang et al., 2021</a>)</span>.</p>
+<p>In the disaster management domain, the integration of social media, sensor networks, and remote-sensing data has further enhanced situational awareness and decision support. Studies have demonstrated that big data analytics can significantly improve response coordination by providing real-time visualizations of affected areas and estimating damage patterns as events unfold <span class="citation" data-cites="imran2020">(<a href="#ref-imran2020" role="doc-biblioref">Imran et al., 2020</a>)</span>. Despite these advancements, challenges remain in data quality, latency, and interoperability, especially when fusing data from multiple agencies and platforms. These challenges underscore the need for flexible, scalable architectures that can efficiently handle continuous data ingestion and real-time model updating—an approach central to this project’s proposed framework.</p>
+</section>
+<section id="identified-gaps" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="identified-gaps"><span class="header-section-number">2.3</span> Identified Gaps</h3>
+<p>Although considerable progress has been made in flood modeling and disaster analytics, several key gaps remain that limit the operational usefulness of existing systems. Most current flood prediction models focus on improving accuracy using historical data but lack the capacity for continuous, real-time updating as new information becomes available <span class="citation" data-cites="xu2021 shen2020">(<a href="#ref-shen2020" role="doc-biblioref">Shen et al., 2020</a>; <a href="#ref-xu2021" role="doc-biblioref">Xu et al., 2021</a>)</span>. Traditional hydrodynamic models such as SLOSH and ADCIRC are computationally intensive and often constrained by the timeliness of input data, making them unsuitable for real-time deployment during rapidly evolving hurricane events <span class="citation" data-cites="jelesnianski1992 luettich1992">(<a href="#ref-jelesnianski1992" role="doc-biblioref">Jelesnianski et al., 1992</a>; <a href="#ref-luettich1992" role="doc-biblioref">Luettich et al., 1992</a>)</span>.</p>
+<p>Furthermore, many machine learning–based studies demonstrate high accuracy under controlled conditions but struggle to generalize across diverse geographic regions and data sources. This is due to the limited integration of heterogeneous data types—such as satellite imagery, radar observations, and IoT sensor readings—into a unified analytical pipeline <span class="citation" data-cites="mergili2019 hashem2015">(<a href="#ref-hashem2015" role="doc-biblioref">Hashem et al., 2015</a>; <a href="#ref-mergili2019" role="doc-biblioref">Mergili et al., 2019</a>)</span>. Even when big data frameworks are used, challenges persist in managing latency, ensuring interoperability among distributed systems, and scaling models to accommodate continuous high-volume data streams <span class="citation" data-cites="imran2020">(<a href="#ref-imran2020" role="doc-biblioref">Imran et al., 2020</a>)</span>.</p>
+<p>These challenges underscore the need for a <strong>real-time, scalable framework</strong> capable of merging multiple environmental data streams into a single, adaptive analytical process. Such a system would bridge the gap between traditional forecasting models and modern big data infrastructure, enabling faster and more reliable predictions of hurricane and tidal flood risk in the Gulf Coast region.</p>
+</section>
+</section>
+<section id="method" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="method"><span class="header-section-number">3</span> Method</h2>
+<section id="data-sources" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="data-sources"><span class="header-section-number">3.1</span> Data Sources</h3>
+<p>This project will draw from a variety of publicly available and authoritative datasets to support the development of a real-time flood prediction framework. Each source provides a unique perspective on hurricane behavior, ocean conditions, and flood risk in the Gulf Coast region.</p>
+<p><strong>1. National Oceanic and Atmospheric Administration (NOAA)</strong><br>
+NOAA provides real-time and historical hurricane data, including storm track coordinates, wind speed, central pressure, and surge estimates through the National Hurricane Center and the Hurricane Research Division <span class="citation" data-cites="noaa2023">(<a href="#ref-noaa2023" role="doc-biblioref">National Oceanic and Atmospheric Administration, 2023</a>)</span>. The agency’s Integrated Ocean Observing System (IOOS) also maintains ocean temperature, wave height, and barometric pressure data critical for surge and tide modeling.</p>
+<p><strong>2. U.S. Geological Survey (USGS)</strong><br>
+The USGS National Water Information System (NWIS) supplies near real-time tide and river gauge readings <span class="citation" data-cites="usgs2022">(<a href="#ref-usgs2022" role="doc-biblioref">U.S. Geological Survey, 2022</a>)</span>. These data provide ground-truth observations that can be integrated into predictive models to evaluate the timing and magnitude of storm surges, coastal flooding, and inland water-level changes during extreme events.</p>
+<p><strong>3. National Aeronautics and Space Administration (NASA)</strong><br>
+NASA’s Earth Observing System Data and Information System (EOSDIS) provides access to satellite imagery capturing precipitation, cloud cover, and land surface conditions. Datasets such as the Global Precipitation Measurement (GPM) mission and the Moderate Resolution Imaging Spectroradiometer (MODIS) can be used to monitor rainfall intensity and spatial distribution during hurricanes <span class="citation" data-cites="mergili2019">(<a href="#ref-mergili2019" role="doc-biblioref">Mergili et al., 2019</a>)</span>.</p>
+<p><strong>4. Federal Emergency Management Agency (FEMA)</strong><br>
+FEMA’s National Risk Index and disaster declarations database supply historical flood hazard maps, event severity indicators, and community resilience metrics <span class="citation" data-cites="fema2022">(<a href="#ref-fema2022" role="doc-biblioref">Federal Emergency Management Agency, 2022</a>)</span>. These data can assist in evaluating the socioeconomic impacts of floods and validating model predictions.</p>
+<p><strong>5. Local and Regional GIS Data</strong><br>
+County and municipal governments along the Gulf Coast often maintain open-access GIS datasets on elevation, drainage infrastructure, and floodplain boundaries. Incorporating these spatial layers improves the precision of risk mapping and allows the framework to produce community-specific flood forecasts.</p>
+<p>Each of these data sources will be integrated through a distributed data architecture, allowing real-time ingestion, transformation, and analysis. The combination of satellite, sensor, and ground-based datasets will enable a comprehensive, multiscale understanding of hurricane and tidal flood dynamics.</p>
+</section>
+<section id="data-storage-and-processing" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="data-storage-and-processing"><span class="header-section-number">3.2</span> Data Storage and Processing</h3>
+<p>To manage the scale, speed, and heterogeneity of environmental data used in this study, the proposed framework will employ a distributed big data architecture. This architecture is designed to handle both batch and streaming data efficiently, enabling near real-time prediction and continuous model updates.</p>
+<p><strong>1. Data Ingestion (Apache Kafka)</strong><br>
+Apache Kafka will serve as the real-time data ingestion layer, collecting continuous data streams from NOAA hurricane feeds, USGS tide gauges, and satellite sensors. Kafka’s publish–subscribe model allows data from multiple producers to be transmitted simultaneously to different consumers, ensuring that all relevant components of the system receive updates instantly <span class="citation" data-cites="hashem2015">(<a href="#ref-hashem2015" role="doc-biblioref">Hashem et al., 2015</a>)</span>. This streaming capability is crucial for low-latency flood prediction during rapidly changing storm conditions.</p>
+<p><strong>2. Distributed Storage (HDFS and Cloud Data Lake)</strong><br>
+The Hadoop Distributed File System (HDFS) will be used for large-scale, fault-tolerant storage of both raw and processed data. HDFS partitions datasets across multiple nodes, enabling parallel read and write operations. For long-term retention and scalability, data will also be mirrored to a cloud-based data lake such as Amazon S3 or Google Cloud Storage. This hybrid approach ensures persistence, accessibility, and redundancy.</p>
+<p><strong>3. Real-Time Processing (Apache Spark Streaming)</strong><br>
+Apache Spark Streaming will handle data transformation, aggregation, and analytics in real time. Spark’s in-memory computation model significantly reduces latency compared to disk-based frameworks like MapReduce, allowing for the rapid execution of machine learning tasks on streaming data <span class="citation" data-cites="jin2015">(<a href="#ref-jin2015" role="doc-biblioref">Jin et al., 2015</a>)</span>. The framework will process incoming sensor and satellite data to compute dynamic flood-risk indicators such as storm surge height, precipitation intensity, and predicted inundation zones.</p>
+<p><strong>4. Data Integration and Workflow Coordination</strong><br>
+Structured and unstructured data from different agencies will be standardized through schema mapping and metadata tagging. Workflow orchestration will be managed using open-source tools such as Apache Airflow or Oozie to automate extraction, transformation, and loading (ETL) pipelines. This ensures that models are retrained automatically as new data arrive, maintaining system adaptability during active hurricane events.</p>
+<p><strong>5. Security, Quality Control, and Logging</strong><br>
+Data integrity will be maintained using validation checks for missing or anomalous values, and system logs will track data lineage from ingestion to analysis. Role-based access control (RBAC) and encrypted data transfer protocols will ensure compliance with open-data security standards.</p>
+<p>Together, these components create a scalable, fault-tolerant environment capable of supporting continuous flood-risk prediction for the Gulf Coast region. The combination of Kafka, HDFS, and Spark Streaming allows the system to ingest, store, and process large volumes of environmental data with minimal delay—transforming raw observations into actionable insights.</p>
+</section>
+<section id="predictive-modeling" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="predictive-modeling"><span class="header-section-number">3.3</span> Predictive Modeling</h3>
+<p>The predictive component of this project will apply machine learning techniques to estimate hurricane-driven flood and storm surge risk in near real time. The goal is to develop a model that can continuously update as new environmental data are ingested, producing dynamic predictions of water-level changes, surge intensity, and inundation probability across the Gulf Coast.</p>
+<p><strong>1. Model Design and Objectives</strong><br>
+The predictive modeling process will focus on two complementary objectives:<br>
+(1) estimating the probability of coastal flooding given meteorological and oceanic conditions, and<br>
+(2) predicting the expected magnitude of flood depth or surge level at specific locations.<br>
+To achieve these goals, supervised learning techniques will be employed to capture the nonlinear and multivariate relationships among variables such as wind speed, pressure, rainfall rate, tide gauge readings, and coastal topography <span class="citation" data-cites="mosavi2018 kratzert2019">(<a href="#ref-kratzert2019" role="doc-biblioref">Kratzert et al., 2019</a>; <a href="#ref-mosavi2018" role="doc-biblioref">Mosavi et al., 2018</a>)</span>.</p>
+<p><strong>2. Model Selection</strong><br>
+A hybrid modeling approach will be adopted to leverage the strengths of both ensemble learning and deep learning methods:</p>
+<ul>
+<li><strong>Gradient Boosted Decision Trees (GBDT):</strong> Suitable for structured tabular data, GBDT will be used for classification and regression of flood occurrence and intensity.<br>
+</li>
+<li><strong>Long Short-Term Memory (LSTM) Networks:</strong> LSTMs will model sequential dependencies in time-series data, such as changing tide levels and rainfall accumulation, allowing the framework to capture temporal patterns during hurricane progression <span class="citation" data-cites="xu2021">(<a href="#ref-xu2021" role="doc-biblioref">Xu et al., 2021</a>)</span>.<br>
+</li>
+<li><strong>Convolutional Neural Networks (CNN):</strong> For spatially distributed inputs such as satellite precipitation imagery, CNNs will extract spatial features that inform the extent and location of potential flooding <span class="citation" data-cites="mergili2019">(<a href="#ref-mergili2019" role="doc-biblioref">Mergili et al., 2019</a>)</span>.</li>
+</ul>
+<p><strong>3. Model Training and Validation</strong><br>
+Historical hurricane and flood datasets will be used to train the models under simulated streaming conditions. Cross-validation and holdout testing will ensure that model performance generalizes to unseen events. Evaluation metrics such as Root Mean Square Error (RMSE), Mean Absolute Error (MAE), and the F1-score will be used to assess predictive accuracy for both continuous and categorical outcomes. Feature importance analyses will also be performed to identify the most influential variables in flood prediction.</p>
+<p><strong>4. Real-Time Model Updating</strong><br>
+As new data arrive through Kafka streams, the model will retrain incrementally using Spark’s MLlib or TensorFlow-on-Spark integration. This online learning capability will enable the system to adapt continuously, refining its predictions throughout the lifecycle of a hurricane event. Model checkpoints and version control will ensure reproducibility and rollback in case of drift or data anomalies.</p>
+<p><strong>5. Integration with Decision Support Systems</strong><br>
+The final model outputs—flood probability maps and surge-level forecasts—will be passed to visualization and alerting components described in Section 3.4. These outputs can feed directly into emergency management dashboards or geographic information systems (GIS) to inform evacuation planning and public safety decisions.</p>
+<p>By combining ensemble and deep learning models within a scalable big data pipeline, this framework will support rapid, adaptive, and accurate flood-risk prediction for the Gulf Coast region.</p>
+</section>
+<section id="visualization-and-decision-support" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="visualization-and-decision-support"><span class="header-section-number">3.4</span> Visualization and Decision Support</h3>
+<p>The final stage of the proposed framework focuses on translating predictive outputs into actionable insights for emergency managers, policy makers, and coastal communities. Visualization and decision-support tools are essential for interpreting large volumes of complex data quickly, particularly during rapidly evolving storm events when timely information can save lives.</p>
+<p><strong>1. Real-Time Dashboards</strong><br>
+A dynamic web-based dashboard will serve as the central interface for visualizing model predictions. Using interactive visualization libraries such as Plotly Dash, D3.js, or Leaflet, the dashboard will display continuously updating maps of predicted storm surge height, rainfall intensity, and inundation probability. Each layer will be interactive, allowing users to zoom into specific coastal regions and overlay additional data such as evacuation routes, population density, or infrastructure locations <span class="citation" data-cites="wang2021">(<a href="#ref-wang2021" role="doc-biblioref">Wang et al., 2021</a>)</span>.</p>
+<p><strong>2. Geographic Information System (GIS) Integration</strong><br>
+Model outputs will be exported as geospatial layers compatible with GIS platforms such as QGIS or ArcGIS. This will enable emergency planners to combine predicted flood zones with official FEMA flood maps and local government GIS data for operational decision-making <span class="citation" data-cites="fema2022">(<a href="#ref-fema2022" role="doc-biblioref">Federal Emergency Management Agency, 2022</a>)</span>. Automated updates from the big data pipeline will ensure that these maps reflect the most recent conditions without requiring manual intervention.</p>
+<p><strong>3. Alerting and Early Warning Systems</strong><br>
+Threshold-based alerts will be implemented using a publish–subscribe architecture that sends notifications to local agencies when flood-risk levels exceed predefined safety limits. Integration with public notification systems (e.g., SMS, email, or push alerts) will allow near-instant communication of high-risk conditions to stakeholders and the general public <span class="citation" data-cites="imran2020">(<a href="#ref-imran2020" role="doc-biblioref">Imran et al., 2020</a>)</span>.</p>
+<p><strong>4. Post-Event Analysis</strong><br>
+Following major hurricanes or flood events, archived predictions will be compared against observed outcomes from NOAA and USGS to evaluate model performance and improve system calibration. Visualization of these results will help identify spatial or temporal biases in the predictions, guiding further optimization of the model and data-processing pipeline.</p>
+<p>Through these visualization and alerting mechanisms, the proposed framework will bridge the gap between complex data analytics and practical disaster management. By providing real-time, interpretable outputs, the system will enhance situational awareness and enable faster, evidence-based decision-making for communities along the Gulf Coast.</p>
+</section>
+<section id="scalability-and-performance-considerations" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="scalability-and-performance-considerations"><span class="header-section-number">3.5</span> Scalability and Performance Considerations</h3>
+<p>Scalability and performance are critical components of any big data system designed for real-time prediction. The proposed framework incorporates several architectural and algorithmic strategies to ensure low latency, fault tolerance, and consistent performance as data volume and velocity increase during hurricane events.</p>
+<p><strong>1. Horizontal Scalability</strong><br>
+The system architecture will be designed for horizontal scaling, allowing additional computing nodes to be added dynamically as data loads increase. Both Apache Kafka and Apache Spark are cluster-based frameworks that support distributed processing across multiple nodes <span class="citation" data-cites="hashem2015">(<a href="#ref-hashem2015" role="doc-biblioref">Hashem et al., 2015</a>)</span>. This configuration will allow the system to handle spikes in data ingestion from NOAA and USGS sensors without performance degradation.</p>
+<p><strong>2. Low-Latency Data Flow</strong><br>
+To meet real-time requirements, Spark Streaming will process micro-batches of data with sub-second latency, and Kafka will use partitioned topics to balance the load across consumers. The system will target an end-to-end processing delay of less than one minute from data ingestion to updated model output. Performance metrics such as throughput, latency, and resource utilization will be monitored continuously to maintain service reliability.</p>
+<p><strong>3. Fault Tolerance and Reliability</strong><br>
+The distributed file system (HDFS) and cloud storage layers provide data replication to prevent loss in case of hardware or network failures. Kafka’s offset tracking and Spark’s checkpointing mechanisms will allow the system to resume from the last consistent state after interruptions. These features are essential during storm events, when network disruptions or sudden surges in data volume are likely.</p>
+<p><strong>4. Containerization and Deployment</strong><br>
+The framework will be containerized using Docker and orchestrated with Kubernetes to simplify deployment, scaling, and version control. This container-based design will ensure that data ingestion, processing, and visualization components can run reliably across heterogeneous cloud or on-premise environments <span class="citation" data-cites="wang2021">(<a href="#ref-wang2021" role="doc-biblioref">Wang et al., 2021</a>)</span>.</p>
+<p><strong>5. Performance Optimization and Resource Management</strong><br>
+Performance will be optimized by allocating dedicated resources to high-priority tasks such as feature extraction and prediction. Data caching and memory tuning within Spark will reduce disk I/O operations, while adaptive query execution will improve efficiency under varying workloads. These optimizations are crucial for maintaining near real-time responsiveness during extreme weather events.</p>
+<p>Through distributed design, resource elasticity, and automated fault recovery, the proposed system will achieve the scalability required for continuous, high-volume data analysis. These capabilities will enable reliable, real-time flood prediction even under the most demanding operational conditions along the Gulf Coast.</p>
+</section>
+</section>
+<section id="expected-results" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="expected-results"><span class="header-section-number">4</span> Expected Results</h2>
+<p>The proposed framework is expected to demonstrate the feasibility and effectiveness of real-time hurricane and tidal flood prediction using big data analytics. By integrating distributed processing, machine learning, and real-time data ingestion, the system will produce several tangible outcomes that advance both research and practical disaster management capabilities.</p>
+<p><strong>1. Real-Time Flood Prediction Prototype</strong><br>
+A functional prototype will be developed to simulate real-time hurricane and flood prediction for the Gulf Coast. This prototype will integrate data streams from NOAA, USGS, and NASA sources and process them using the Kafka–Spark pipeline. The model is expected to generate updated flood-risk predictions at sub-hourly intervals, demonstrating significant reductions in processing time compared to conventional hydrologic models such as SLOSH and ADCIRC <span class="citation" data-cites="jelesnianski1992 luettich1992">(<a href="#ref-jelesnianski1992" role="doc-biblioref">Jelesnianski et al., 1992</a>; <a href="#ref-luettich1992" role="doc-biblioref">Luettich et al., 1992</a>)</span>.</p>
+<p><strong>2. Improved Prediction Accuracy and Timeliness</strong><br>
+By combining machine learning and deep learning models trained on both historical and live data, the framework is expected to outperform traditional methods in forecasting storm surge height, rainfall accumulation, and flood extent. The integration of LSTM and CNN models will allow for accurate spatiotemporal pattern recognition, enhancing predictive precision for both coastal and inland flooding <span class="citation" data-cites="kratzert2019 xu2021">(<a href="#ref-kratzert2019" role="doc-biblioref">Kratzert et al., 2019</a>; <a href="#ref-xu2021" role="doc-biblioref">Xu et al., 2021</a>)</span>.</p>
+<p><strong>3. Scalable and Reproducible Architecture</strong><br>
+The project will result in a scalable architecture that can be deployed on cloud platforms such as AWS or Google Cloud. Containerization through Docker and orchestration via Kubernetes will ensure reproducibility and portability across different environments. This design will allow researchers and agencies to replicate the framework for other high-risk coastal regions.</p>
+<p><strong>4. Decision-Support Tools for Emergency Management</strong><br>
+The visualization and alerting components are expected to demonstrate how big data systems can be operationalized for real-world decision-making. The resulting dashboard and GIS-integrated maps will provide emergency managers with continuously updated situational awareness, enabling more efficient evacuation planning and resource allocation <span class="citation" data-cites="fema2022 wang2021">(<a href="#ref-fema2022" role="doc-biblioref">Federal Emergency Management Agency, 2022</a>; <a href="#ref-wang2021" role="doc-biblioref">Wang et al., 2021</a>)</span>.</p>
+<p><strong>5. Research Contribution</strong><br>
+The project will contribute to the growing field of environmental informatics by providing a case study in applying big data frameworks to climate-related disaster prediction. It will also highlight the challenges of integrating streaming data, distributed systems, and AI models in real-time scientific workflows—offering insights relevant to future research in both academia and government applications.</p>
+<p>Overall, the expected outcome of this project is a validated, scalable framework that demonstrates how big data technologies can transform flood-risk forecasting from static modeling to dynamic, real-time decision support for the Gulf Coast region.</p>
+</section>
+<section id="limitations-and-future-work" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="limitations-and-future-work"><span class="header-section-number">5</span> Limitations and Future Work</h2>
+<p>While the proposed framework provides a robust foundation for real-time hurricane and tidal flood prediction, several limitations must be acknowledged. Recognizing these constraints is essential for improving the framework’s scalability, reliability, and operational readiness in future research.</p>
+<p><strong>1. Data Availability and Quality</strong><br>
+The effectiveness of the model depends heavily on the availability and consistency of high-quality data streams. Gaps in sensor coverage, communication failures during storms, and inconsistent temporal resolutions across datasets can introduce uncertainty into predictions <span class="citation" data-cites="usgs2022">(<a href="#ref-usgs2022" role="doc-biblioref">U.S. Geological Survey, 2022</a>)</span>. Additionally, satellite imagery is subject to cloud cover and latency issues that may reduce the timeliness of updates.</p>
+<p><strong>2. Computational and Infrastructure Costs</strong><br>
+Although the system is designed for distributed scalability, deploying a real-time big data pipeline across multiple nodes or cloud services can be resource-intensive. Smaller research teams or public agencies may face challenges in maintaining the required computing infrastructure, especially during prolonged hurricane seasons <span class="citation" data-cites="hashem2015">(<a href="#ref-hashem2015" role="doc-biblioref">Hashem et al., 2015</a>)</span>.</p>
+<p><strong>3. Model Interpretability and Drift</strong><br>
+Machine learning models such as LSTM and CNN are often considered “black-box” systems, making it difficult to interpret decision logic or explain predictions to non-technical users <span class="citation" data-cites="kratzert2019">(<a href="#ref-kratzert2019" role="doc-biblioref">Kratzert et al., 2019</a>)</span>. Moreover, as environmental conditions change due to climate variability, model drift may occur—requiring continuous retraining and validation to maintain accuracy.</p>
+<p><strong>4. Interagency Data Integration</strong><br>
+Integrating data across multiple agencies (e.g., NOAA, USGS, FEMA, and local governments) introduces challenges in standardizing formats, access permissions, and update frequencies. Variations in data schemas and collection methodologies can create bottlenecks for real-time interoperability <span class="citation" data-cites="imran2020">(<a href="#ref-imran2020" role="doc-biblioref">Imran et al., 2020</a>)</span>.</p>
+<p><strong>5. Future Work</strong><br>
+Future research should focus on expanding the framework to include additional data sources such as crowd-sourced flood reports, social media activity, and high-resolution drone imagery. Incorporating ensemble learning and explainable AI (XAI) techniques could improve both accuracy and interpretability of the predictions. Additionally, integrating the system with edge-computing devices deployed at coastal monitoring stations could reduce latency and improve resilience during network outages.</p>
+<p>By addressing these limitations, future iterations of the framework can evolve into a fully operational decision-support platform for Gulf Coast emergency management, combining scientific rigor with real-time responsiveness.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-fema2022" class="csl-entry" role="listitem">
+Federal Emergency Management Agency. (2022). <em>FEMA national risk index: Coastal and flood hazards</em>. https://hazards.fema.gov/nri/.
+</div>
+<div id="ref-hashem2015" class="csl-entry" role="listitem">
+Hashem, I. A. T., Yaqoob, I., Anuar, N. B., Mokhtar, S., Gani, A., &amp; Khan, S. U. (2015). The rise of big data on cloud computing: Review and open research issues. <em>Information Systems</em>, <em>47</em>, 98–115. <a href="https://doi.org/10.1016/j.is.2014.07.006">https://doi.org/10.1016/j.is.2014.07.006</a>
+</div>
+<div id="ref-imran2020" class="csl-entry" role="listitem">
+Imran, M., Castillo, C., Diaz, F., &amp; Vieweg, S. (2020). A survey of social media data analysis for disaster response and crisis management. <em>Computers in Human Behavior</em>, <em>110</em>, 106548. <a href="https://doi.org/10.1016/j.chb.2020.106548">https://doi.org/10.1016/j.chb.2020.106548</a>
+</div>
+<div id="ref-ipcc2021" class="csl-entry" role="listitem">
+Intergovernmental Panel on Climate Change. (2021). <em>Climate change 2021: The physical science basis</em>. https://www.ipcc.ch/report/ar6/wg1/.
+</div>
+<div id="ref-jelesnianski1992" class="csl-entry" role="listitem">
+Jelesnianski, C. P., Chen, J., &amp; Shaffer, W. A. (1992). <em>SLOSH: Sea, lake, and overland surges from hurricanes</em>. NOAA Technical Report NWS 48; https://repository.library.noaa.gov/view/noaa/7131.
+</div>
+<div id="ref-jin2015" class="csl-entry" role="listitem">
+Jin, J., Gubbi, J., Marusic, I., &amp; Palaniswami, M. (2015). A review on big data analytics in the climate and environmental sciences. <em>IEEE Transactions on Big Data</em>, <em>1</em>(1), 57–66. <a href="https://doi.org/10.1109/TBDATA.2015.2465959">https://doi.org/10.1109/TBDATA.2015.2465959</a>
+</div>
+<div id="ref-kratzert2019" class="csl-entry" role="listitem">
+Kratzert, F., Klotz, D., Brenner, C., Schulz, K., &amp; Herrnegger, M. (2019). Toward improved predictions in hydrologic modeling: Combining long short-term memory networks and process-based models. <em>Water Resources Research</em>, <em>55</em>(11), 7772–7794. <a href="https://doi.org/10.1029/2019WR025528">https://doi.org/10.1029/2019WR025528</a>
+</div>
+<div id="ref-luettich1992" class="csl-entry" role="listitem">
+Luettich, R. A., Westerink, J. J., &amp; Scheffner, N. W. (1992). ADCIRC: An advanced three-dimensional circulation model for shelves, coasts, and estuaries. <em>U.S. Army Corps of Engineers, Technical Report DRP-92-6</em>.
+</div>
+<div id="ref-mergili2019" class="csl-entry" role="listitem">
+Mergili, M., Jaboyedoff, M., Pullanikkatil, D., &amp; Pudasaini, S. (2019). Integrating remote sensing and big data for natural hazard risk analysis: A review. <em>Progress in Earth and Planetary Science</em>, <em>6</em>, 1–22. <a href="https://doi.org/10.1186/s40645-019-0288-1">https://doi.org/10.1186/s40645-019-0288-1</a>
+</div>
+<div id="ref-mosavi2018" class="csl-entry" role="listitem">
+Mosavi, A., Ozturk, P., &amp; Chau, K.-W. (2018). Flood prediction using machine learning models: Literature review. <em>Water</em>, <em>10</em>(11), 1536. <a href="https://doi.org/10.3390/w10111536">https://doi.org/10.3390/w10111536</a>
+</div>
+<div id="ref-noaa2023" class="csl-entry" role="listitem">
+National Oceanic and Atmospheric Administration. (2023). <em>Hurricanes and tropical storms climatology</em>. https://www.nhc.noaa.gov/climo/.
+</div>
+<div id="ref-resio2007" class="csl-entry" role="listitem">
+Resio, D. T., &amp; Westerink, J. J. (2007). White paper on estimating hurricane inundation probabilities. <em>NOAA Technical Report</em>.
+</div>
+<div id="ref-shen2020" class="csl-entry" role="listitem">
+Shen, L., Liu, Y., &amp; Wu, Z. (2020). Real-time flood monitoring using apache spark and satellite data. <em>Environmental Modelling &amp; Software</em>, <em>132</em>, 104795. <a href="https://doi.org/10.1016/j.envsoft.2020.104795">https://doi.org/10.1016/j.envsoft.2020.104795</a>
+</div>
+<div id="ref-usgs2022" class="csl-entry" role="listitem">
+U.S. Geological Survey. (2022). <em>USGS water data for the nation: Real-time data</em>. https://waterdata.usgs.gov/nwis.
+</div>
+<div id="ref-nca2023" class="csl-entry" role="listitem">
+U.S. Global Change Research Program. (2023). <em>Fifth national climate assessment: Southeast chapter</em>. https://nca2023.globalchange.gov/.
+</div>
+<div id="ref-wang2021" class="csl-entry" role="listitem">
+Wang, X., Huang, C., Liu, M., &amp; Chen, J. (2021). Cloud-based big data analytics for real-time flood prediction and response. <em>Journal of Hydrology</em>, <em>598</em>, 126423. <a href="https://doi.org/10.1016/j.jhydrol.2021.126423">https://doi.org/10.1016/j.jhydrol.2021.126423</a>
+</div>
+<div id="ref-xu2021" class="csl-entry" role="listitem">
+Xu, Z., Liang, K., &amp; Li, L. (2021). Deep learning for hydrologic and hydraulic prediction: A review. <em>Hydrology and Earth System Sciences</em>, <em>25</em>, 3899–3923. <a href="https://doi.org/10.5194/hess-25-3899-2021">https://doi.org/10.5194/hess-25-3899-2021</a>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="gulf-coast-flood-risk_files/libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
