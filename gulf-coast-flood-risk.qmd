@@ -1,11 +1,48 @@
 ---
-title: "gulf-coast-flood-risk"
+title: "Real-Time Prediction of Hurricane and Tidal Flood Risk in the Gulf Coast Using Big Data"
+author: "Autumn S. Wilcox"
+course: "IDC 6145 – Big Data Applications"
+institution: "University of West Florida"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    code-fold: true
+    code-tools: false
+  pdf:
+    toc: true
+    number-sections: true
+    geometry: margin=1in
+    fontsize: 12pt
+bibliography: references.bib
+csl: https://www.zotero.org/styles/apa
+editor: visual
+execute:
+  echo: false
+  warning: false
+  message: false
 ---
 
-## Quarto
+## 1. Introduction
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+The U.S. Gulf Coast faces recurring hurricane and tidal flood events that cause severe economic, environmental, and social disruption [@noaa2023; @fema2022]. The increasing frequency and intensity of these storms, driven by climate change and coastal development, highlight the urgent need for accurate and timely flood prediction systems [@nca2023; @ipcc2021]. However, many existing forecasting models depend on static or delayed data sources and lack the ability to integrate diverse, real-time information streams. This limitation reduces their usefulness for emergency response, evacuation planning, and infrastructure protection [@usgs2022].
 
-```{r}
-1 + 1
-```
+This project proposes a real-time big data framework for predicting hurricane and tidal flood risk in the Gulf Coast region. The system will integrate live environmental data from sources such as the National Oceanic and Atmospheric Administration (NOAA), U.S. Geological Survey (USGS) tide gauges, and satellite imagery to generate continuously updated risk forecasts. To handle the scale and speed of these data, the framework will utilize distributed streaming technologies such as Apache Kafka for ingesting real-time data and Apache Spark Streaming for large-scale analytics, which will be described in greater detail in the Methods section.
+
+The primary objective of this research is to design a framework capable of identifying flood-prone zones and forecasting storm surge severity in near real time. By leveraging big data analytics, the project aims to enhance early warning systems, improve situational awareness, and ultimately reduce disaster impacts on Gulf Coast communities.
+
+---
+
+## 2. Background Review
+
+### 2.1 Prior Work in Flood Prediction
+
+Traditional flood forecasting models have relied primarily on physics-based hydrologic and hydrodynamic simulations. Systems such as the Sea, Lake, and Overland Surges from Hurricanes (SLOSH) model and the Advanced Circulation (ADCIRC) model are widely used to estimate storm surge and coastal inundation levels [@jelesnianski1992; @luettich1992]. While these models can accurately reproduce storm surge under ideal conditions, they require significant computational resources and are often limited by the availability of real-time input data [@resio2007]. This restricts their ability to update forecasts dynamically as new observations become available.
+
+In recent years, machine learning and data-driven methods have been introduced to improve flood forecasting. Techniques such as Random Forests, Gradient Boosting, and deep learning architectures like Long Short-Term Memory (LSTM) and Convolutional Neural Networks (CNN) have been used to model nonlinear relationships between rainfall, tide, and water-level data [@mosavi2018; @kratzert2019]. These models can capture complex spatial and temporal dependencies, enabling faster and sometimes more accurate predictions than traditional approaches. However, many of these studies operate on historical datasets rather than live data streams, and few address the computational scaling required for real-time applications [@xu2021].
+
+While progress has been made toward predictive accuracy, the real challenge lies in combining **real-time data ingestion** with scalable, distributed processing. A true big data approach must integrate diverse data sources—such as weather radar, satellite imagery, and IoT-based sensors—into continuous analytic pipelines capable of updating predictions on demand. This gap between high-resolution forecasting and real-time operational capability motivates the framework proposed in this study.
+
